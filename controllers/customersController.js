@@ -6,11 +6,12 @@ export async function getCustomers(req, res){
     const { id } = req.params;
     
     let customers = [];
+
     try {
         id? customers = await db.query(`SELECT * FROM customers WHERE id = '${id}'`):
             customers = await db.query('SELECT * FROM customers');
-    
-        res.send(customers.rows);
+        
+        id ?  res.send(customers.rows[0]) : res.send(customers.rows);
         
     } catch (error) {
         console.log('fail to seach customers: ', error);
@@ -20,7 +21,6 @@ export async function getCustomers(req, res){
 export async function addCustomer(req, res){
 
     const {name, phone, cpf, birthday} = req.body;
-    
 
     try {
         await db.query(`INSERT 

@@ -5,7 +5,7 @@ import cors from 'cors';
 import categorieRouter from "./routers/categorieRouter.js";
 import gamesRouter from "./routers/gamesRouter.js";
 import customersRouter from "./routers/customersRouter.js";
-import { getRentals } from "./controllers/rentalsController.js";
+import rentalsRouter from "./routers/rentalsRouter.js";
 
 
 const server = express();
@@ -24,7 +24,7 @@ server.listen(process.env.PORT, ()=>{
 server.use(categorieRouter);
 server.use(gamesRouter);
 server.use(customersRouter);
-server.use(getRentals);
+server.use(rentalsRouter);
 
 
 
