@@ -76,12 +76,11 @@ export async function getRentals(req, res){
 export async function createRental(req, res){
     const { customerId, gameId, daysRented } = req.body;
 
-    const date = dayjs().format('YYYY-MM-DD');
+    const date = '2022-05-17';
 
     try {
         const game = await db.query(`SELECT * FROM games WHERE id = ('${gameId}')`);
         const total = game.rows[0].pricePerDay * daysRented;
-        console.log(date, total)
         const included = await db.query(`INSERT 
                                             INTO rentals ("customerId", "gameId", "rentDate", "daysRented", "returnDate", "originalPrice", "delayFee")
                                             VALUES ('${customerId}', '${gameId}', '${date}', '${daysRented}', ${null}, '${total}', ${null} )
@@ -97,7 +96,7 @@ export async function deleteRental(req, res){
 
   const { id } = req.params;
 
-  console.log('To delete: ', id);
+  console.log('To delete id: ', id);
 
   const toDelete =  await db.query(`SELECT * FROM rentals WHERE id = ('${id}')`)
   console.log('to delete: ', toDelete.rows);
@@ -121,12 +120,59 @@ export async function deleteRental(req, res){
     res.sendStatus(404);
   }
 
-
-
 }
 
-export async function updateRental(req, res){
+export async function finalizeRental(req, res){
 
+  const { id } = req.params;
 
+  const dataRented = await db.query(`SELECT * FROM rentals WHERE id = ('${id}')`);
+  const today = dayjs().format('YYYY-MM-DD');
   
+  const date1 = new Date(today);
+  const date2 = new Date(dataRented.rows[0].rentDate);
+
+  const mileDifference = Math.abs(date1.getTime() - date2.getTime());
+  const days = Math.ceil(mileDifference/ (1000 * 3600 * 24));
+
+  const game = await db.query(`SELECT * FROM games WHERE id = (${dataRented.rows[0].gameId})`);
+
+  const delayFee = (days - Number(dataRented.rows[0].daysRented)) * game.rows[0].pricePerDay;
+
+  try {
+    
+    if(delayFee > 0 ){
+     await db.query(`UPDATE rentals 
+                            SET "returnDate" = '${today}',
+                                "delayFee" = ${delayFee}
+                            WHERE id = ('${id}')`);
+
+    }
+    else{
+      await db.query(`UPDATE rentals 
+                            SET "returnDate" = '${today}',
+                                "delayFee" = ${0}
+                            WHERE id = ('${id}')`);
+
+    }
+
+    res.sendStatus(200)
+    
+
+    
+    
+  } catch (error) {
+    console.log('erro ao entregar: ', error);
+  }
+  
+
+
+
+
+
+
+
+
+
+
 }
