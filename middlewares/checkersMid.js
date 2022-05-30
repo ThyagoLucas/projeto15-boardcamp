@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+import Joi from 'joi';
 import db from '../database.js';
 
 export async function verifyCategory(req, res, next){
@@ -11,4 +13,38 @@ export async function verifyCategory(req, res, next){
         res.sendStatus(400);
     }
     
+}
+
+export async function verifyDatasUser(req, res, next){
+
+    const schema = Joi.object({
+        name: Joi.string()
+            .required(),
+
+        phone: Joi.string()
+            .min(10)
+            .max(11)
+            .required(),
+
+        cpf: Joi.string()
+            .length(11)
+            .required(),
+        birthday : Joi.string().length(10)
+    });
+
+    if(schema.validate(req.body).error) return res.sendStatus(400);
+
+    try {
+        const thereIs = await db.query(`SELECT * FROM customers WHERE cpf = ('${req.body.cpf}')`);
+       
+        thereIs.rowCount === 0 ? next() : res.sendStatus(409);
+        
+    } catch (error) {
+        console.log(error)
+        
+    }
+
+
+
+
 }
