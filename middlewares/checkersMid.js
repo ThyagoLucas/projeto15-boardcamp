@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+
 import Joi from 'joi';
 import db from '../database.js';
 
@@ -47,4 +47,13 @@ export async function verifyDatasUser(req, res, next){
 
 
 
+}
+
+export async function verifyRental( req, res, next){
+    const { id } = req.params;
+    const rental = await db.query(`SELECT * FROM rentals WHERE id = ('${id}')`)
+    
+    if(rental.rowCount === 0 ) res.sendStatus(404);
+    if(rental.rows[0].returnDate !== null) res.sendStatus(400);
+    else next()
 }

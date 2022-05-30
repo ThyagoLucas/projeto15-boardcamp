@@ -76,7 +76,7 @@ export async function getRentals(req, res){
 export async function createRental(req, res){
     const { customerId, gameId, daysRented } = req.body;
 
-    const date = '2022-05-17';
+    const date = dayjs().format('YYYY-MM-DD');
 
     try {
         const game = await db.query(`SELECT * FROM games WHERE id = ('${gameId}')`);
@@ -146,17 +146,17 @@ export async function finalizeRental(req, res){
                             SET "returnDate" = '${today}',
                                 "delayFee" = ${delayFee}
                             WHERE id = ('${id}')`);
-
+    res.sendStatus(200)
     }
     else{
       await db.query(`UPDATE rentals 
                             SET "returnDate" = '${today}',
                                 "delayFee" = ${0}
                             WHERE id = ('${id}')`);
-
+    res.sendStatus(200)
     }
 
-    res.sendStatus(200)
+    
     
 
     
