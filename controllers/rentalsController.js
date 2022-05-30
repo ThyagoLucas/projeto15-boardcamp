@@ -3,10 +3,9 @@ import db from "../database.js";
 
 export async function getRentals(req, res){
 
-
   const customerId  = parseInt(req.query.customerId);
 
-  console.log('customer: ',customerId) 
+ 
   const arrayToSend = [];
 
   const locateds = await db.query(`SELECT * FROM rentals`);
@@ -15,8 +14,6 @@ export async function getRentals(req, res){
   const categories = await db.query('SELECT * FROM categories');
 
   try {
-    
-   
     locateds.rows.forEach(element => {
      
       let customer = {};
@@ -56,9 +53,6 @@ export async function getRentals(req, res){
 
                     }}
 
-    console.log(typeof(customerId))
-    console.log(typeof(element.customerId));
-
     if(customerId){
      
       if(element.customerId === customerId ) arrayToSend.push(objToArray);
@@ -71,15 +65,11 @@ export async function getRentals(req, res){
      
     });
 
-    
-
     res.send(arrayToSend);
     
-      
   } catch (error) {
       console.log(error)
   }
-
 
 }
 
@@ -101,4 +91,42 @@ export async function createRental(req, res){
     } catch (error) {
         console.log(error)
     }
+}
+
+export async function deleteRental(req, res){
+
+  const { id } = req.params;
+
+  console.log('To delete: ', id);
+
+  const toDelete =  await db.query(`SELECT * FROM rentals WHERE id = ('${id}')`)
+  console.log('to delete: ', toDelete.rows);
+
+  if(toDelete.length === 0) return res.sendStatus(404);
+
+  try {
+     
+    if(toDelete.rows[0].returnDate !== null){
+      
+      res.sendStatus(400)
+    }
+    else{
+      await db.query(`DELETE FROM rentals WHERE id = ('${id}')`)
+      res.sendStatus(200);
+    }
+   
+    
+  } catch (error) {
+    console.log('fail to felete rental: ', error);
+    res.sendStatus(404);
+  }
+
+
+
+}
+
+export async function updateRental(req, res){
+
+
+  
 }
